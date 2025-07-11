@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { protect } = require("../middlewares/authMiddleware");
-const { uploadProfilePicture, getUserInventory, getUserMessages, upMessageRead } = require("../controllers/userController");
+const { uploadProfilePicture, getUserInventory, getUserMessages, upMessageRead, getReadCount } = require("../controllers/userController");
 const { profileUpload } = require("../middlewares/uploadMiddle");
 const router = express.Router();
 
@@ -23,6 +23,9 @@ router.post(
 router.get(
 
     "/get-message", protect, getUserMessages)
+
+
+router.get("/get-unread-messages", protect, getReadCount);
 
 router.put("/update-message", protect, upMessageRead);
 module.exports = router;

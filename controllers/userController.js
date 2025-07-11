@@ -2,6 +2,7 @@ const inventory = require("../models/inventory");
 // const message = require("../models/message");
 const User = require("../models/user")
 const Message = require("../models/message"); // Add this line at the top with your other imports
+const message = require("../models/message");
 const uploadProfilePicture = async(req, res) => {
     try {
         // Check if file exists (using multer's file handling)
@@ -145,10 +146,43 @@ const upMessageRead = async(req, res) => {
     }
 };
 
+const getReadCount = async(req, res) => {
+    try {
+        const userId = req.user._id; // Assumes authentication middleware adds user to req
+
+        // Fetch messages that are UNREAD (not read yet)
+        const messages = await message.find({ recipient: userId, isread: false })
+            .populate('sender', 'firstname lastname profileimage');
+
+        if (!messages || messages.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No unread messages found for this user",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            count: messages.length,
+            data: messages,
+        });
+
+    } catch (error) {
+        console.error("Error fetching unread messages:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching unread messages",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        });
+    }
+};
+
+
 
 module.exports = {
     uploadProfilePicture,
     getUserInventory,
     getUserMessages,
+    getReadCount,
     upMessageRead
 };
