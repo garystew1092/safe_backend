@@ -62,13 +62,18 @@ const getUserInventory = async(req, res) => {
 const getUserMessages = async(req, res) => {
     try {
         const userId = req.user._id;
+
         const messages = await Message.find({ recipient: userId }).populate("sender", "firstname lastname profileimage");
 
         if (!messages || messages.length === 0) {
             return res.status(404).json({ success: false, message: "No messages found for this user" });
         }
 
-        res.status(200).json({ success: true, count: messages.length, data: messages });
+        res.status(200).json({
+            success: true,
+            count: messages.length,
+            data: messages
+        });
     } catch (error) {
         console.error("Error fetching user messages:", error);
         res.status(500).json({
@@ -83,23 +88,41 @@ const getUserMessages = async(req, res) => {
 const upMessageRead = async(req, res) => {
     try {
         const userId = req.user._id;
-        const messages = await Message.find({ recipient: userId }).populate("sender", "firstname lastname profileimage");
+
+        // Update all messages for the user to isread: true
+        const updateResult = await Message.updateMany({ recipient: userId, isread: false }, // Use lowercase isread
+            { $set: { isread: true } }
+        );
+
+        // Fetch updated messages
+        const messages = await Message.find({ recipient: userId })
+            .populate("sender", "firstname lastname profileimage");
 
         if (!messages || messages.length === 0) {
-            return res.status(404).json({ success: false, message: "No messages found for this user" });
+            return res.status(404).json({
+                success: false,
+                message: "No messages found for this user"
+            });
         }
 
-        res.status(200).json({ success: true, count: messages.length, data: messages });
+        // Log the number of messages updated
+        console.log(`Updated ${updateResult.modifiedCount} messages to isread: true`);
+
+        res.status(200).json({
+            success: true,
+            count: messages.length,
+            data: messages,
+            message: "Messages marked as read successfully"
+        });
     } catch (error) {
-        console.error("Error fetching user messages:", error);
+        console.error("Error updating messages:", error);
         res.status(500).json({
             success: false,
-            message: "Server error while fetching messages",
+            message: "Server error while updating messages",
             error: process.env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
 };
-
 // Get count of unread messages
 const getReadCount = async(req, res) => {
     try {

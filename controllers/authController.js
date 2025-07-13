@@ -67,7 +67,9 @@ const registerUser = async(req, res) => {
         console.log("User created:", user._id);
         const sandra = await User.findOne({ firstname: "Sandra" }); // or some other unique field
         if (!sandra) {
-            return res.status(400).json({ message: "System error: Sender (Sandra) not found." });
+            return res
+                .status(400)
+                .json({ message: "System error: Sender (Sandra) not found." });
         }
 
         const welcomeMessage = await Message.create({
@@ -139,6 +141,7 @@ const getUserProfile = async(req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
         res.json(user);
+        console.log("collected user value :", user)
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }

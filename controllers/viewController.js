@@ -12,8 +12,8 @@ const dashView = async(req, res) => {
 
         // Get the count of all inventory records for THIS USER
         const totalRecords = await Inventory.countDocuments({ user: req.user._id });
-
-        // GET TOTAL NUMBER OF TRANSACTION
+        console.log("the total value is : ", totalRecords)
+            // GET TOTAL NUMBER OF TRANSACTION
 
         res.status(200).json({
             success: true,

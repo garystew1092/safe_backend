@@ -22,7 +22,7 @@ router.post(
 );
 router.get(
 
-    "/get-message", protect, getUserMessages)
+        "/get-message", protect, getUserMessages) //Keeps call(check)
 
 
 router.get("/get-unread-messages", protect, getReadCount);
